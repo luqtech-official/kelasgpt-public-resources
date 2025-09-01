@@ -1,4 +1,9 @@
 // scripts/build_social_noti.js
+
+// Force IPv4 DNS resolution in Node (Node 18+)
+require("dns").setDefaultResultOrder("ipv4first");
+process.env.TZ = "Asia/Kuala_Lumpur"; // keep your MY timezone
+
 // Generates data/social_noti.json from Supabase (latest 30 PAID orders).
 
 const { Client } = require("pg");
