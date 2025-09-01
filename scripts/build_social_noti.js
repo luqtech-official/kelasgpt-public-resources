@@ -48,6 +48,7 @@ async function run() {
   const aRecords = await dns.resolve4(hostname);
   const hostIPv4 = aRecords[0];
 
+  console.log("Resolved", hostname, "to IPv4", hostIPv4);
   const client = new Client({
     host: hostIPv4,       // <-- bypass DNS at connect time
     port,
