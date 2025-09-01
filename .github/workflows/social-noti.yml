@@ -1,0 +1,36 @@
+name: Update Social Noti JSON
+
+on:
+  schedule:
+    - cron: "*/15 * * * *" # every 15 minutes
+  workflow_dispatch: {}     # allow manual run
+
+permissions:
+  contents: write
+
+jobs:
+  build-json:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      TZ: Asia/Kuala_Lumpur
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install pg
+        run: npm i pg
+
+      - name: Build social_noti.json
+        run: node scripts/build_social_noti.js
+
+      - name: Commit & push if changed
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: refresh social_noti.json (automated)"
+          file_pattern: data/social_noti.json
