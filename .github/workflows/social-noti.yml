@@ -27,8 +27,13 @@ jobs:
       - name: Install pg
         run: npm i pg
 
-      - name: Build social_noti.json
-        run: node scripts/build_social_noti.js
+      - name: Build social noti
+        env:
+          NODE_OPTIONS: --dns-result-order=ipv4first
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          node -v
+          node scripts/build_social_noti.js
 
       - name: Commit & push if changed
         uses: stefanzweifel/git-auto-commit-action@v5
