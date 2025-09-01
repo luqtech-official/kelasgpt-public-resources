@@ -5,7 +5,7 @@ require("dns").setDefaultResultOrder("ipv4first");
 process.env.TZ = "Asia/Kuala_Lumpur"; // keep your MY timezone
 
 // Generates data/social_noti.json from Supabase (latest 30 PAID orders).
-
+const dns = require("dns");
 const { Client } = require("pg");
 const fs = require("fs");
 const path = require("path");
@@ -44,8 +44,12 @@ async function run() {
   }
 
   const client = new Client({
-    connectionString: connStr,
-    ssl: { rejectUnauthorized: false } // required by Supabase managed PG
+    connectionString: process.env.SUPABASE_DB_URL,
+    ssl: { rejectUnauthorized: false },
+    // Force IPv4 resolution for the DB host:
+    lookup: (hostname, options, cb) => {
+      return dns.lookup(hostname, { ...options, family: 4, all: false }, cb);
+    },
   });
 
   await client.connect();
@@ -55,7 +59,7 @@ async function run() {
     SELECT 
       c.full_name AS name,
       o.product_name AS "productName",
-      (o.updated_at AT TIME ZONE 'Asia/Kuala_Lumpur') AS updated_my
+      o.updated_at AS updated_at  -- keep as timestamptz (UTC)
     FROM public.orders o
     JOIN public.customers c ON c.customer_id = o.customer_id
     WHERE o.order_status = 'paid'
@@ -69,7 +73,7 @@ async function run() {
   const data = rows.map(r => ({
     name: r.name,
     productName: r.productName,
-    when: whenLabel(r.updated_my)   // "Hari Ini" / "Semalam" / "X hari lalu"
+    when: whenLabel(r.updated_at) // pass UTC; whenLabel uses Asia/Kuala_Lumpur
   }));
 
   const outPath = path.join(process.cwd(), "data", "social_noti.json");
