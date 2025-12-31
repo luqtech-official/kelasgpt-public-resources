@@ -24,8 +24,7 @@ function whenLabel(updatedAtIso) {
   if (updDay === today) return "Hari Ini";
   const toMs = s => Date.parse(s + "T00:00:00");
   const diffDays = Math.round((toMs(today) - toMs(updDay)) / 86400000);
-  if (diffDays === 1) return "Semalam";
-  return `${diffDays} hari lalu`;
+  return `${diffDays} hari yang lalu`;
 }
 
 async function run() {
