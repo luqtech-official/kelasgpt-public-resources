@@ -40,6 +40,20 @@ jobs:
           node -v
           node scripts/build_social_noti.js
 
+      - name: Check file changes
+        run: |
+          echo "=== File status ==="
+          git status
+          echo ""
+          echo "=== File diff ==="
+          git diff data/social_noti.json || echo "No changes detected"
+          echo ""
+          echo "=== File content preview ==="
+          head -n 20 data/social_noti.json || echo "File not found"
+          echo ""
+          echo "=== File timestamp ==="
+          ls -la data/social_noti.json || echo "File not found"
+
       - name: Commit & push if changed
         id: auto-commit-action
         uses: stefanzweifel/git-auto-commit-action@v5
