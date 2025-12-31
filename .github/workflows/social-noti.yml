@@ -5,11 +5,9 @@ on:
     - cron: "*/15 * * * *" # every 15 minutes
   workflow_dispatch: {}     # allow manual run
 
-# --- ADD THIS SECTION ---
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-# ------------------------
 
 permissions:
   contents: write
@@ -21,18 +19,19 @@ jobs:
       SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
       TZ: Asia/Kuala_Lumpur
       NODE_OPTIONS: --dns-result-order=ipv4first
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          
+
       - name: Install pg
         run: npm i pg
-        
+
       - name: Build social noti
         env:
           NODE_OPTIONS: --dns-result-order=ipv4first
@@ -40,9 +39,15 @@ jobs:
         run: |
           node -v
           node scripts/build_social_noti.js
-          
+
       - name: Commit & push if changed
+        id: auto-commit-action
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: refresh social_noti.json (automated)"
           file_pattern: data/social_noti.json
+
+      - name: Purge jsDelivr cache (only if updated)
+        if: steps.auto-commit-action.outputs.changes_detected == 'true'
+        run: |
+          curl -fsSL https://purge.jsdelivr.net/gh/luqtech-official/kelasgpt-public-resources/data/social_noti.json
