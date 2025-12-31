@@ -1,5 +1,10 @@
 [
   {
+    "name": "testing new discount code func",
+    "productName": "KelasGPT - Instant Access x1",
+    "when": "Hari Ini"
+  },
+  {
     "name": "discounttestcode",
     "productName": "KelasGPT - Instant Access x1",
     "when": "Hari Ini"
